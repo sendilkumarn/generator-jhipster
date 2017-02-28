@@ -12,7 +12,8 @@ import { ITEMS_PER_PAGE } from '../../../../../../main/webapp/app/shared';
 function getDate(isToday= true){
     let date: Date = new Date();
     if (isToday) {
-        return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate() + 1}`;
+        date.setDate(date.getDate() + 1);
+        return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
     }
     return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
 }
