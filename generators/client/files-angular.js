@@ -127,7 +127,6 @@ const files = {
             path: ANGULAR_DIR,
             templates: [
                 '_app.main.ts',
-                '_app.main-aot.ts',
                 '_app.route.ts',
                 '_app.module.ts',
                 '_app.constants.ts',
