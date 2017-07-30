@@ -34,8 +34,7 @@
         ]
     },
     "files": [
-        "<%= MAIN_SRC_DIR %>app/app.module.ts",
-        "<%= MAIN_SRC_DIR %>app/app.main-aot.ts"
+        "<%= MAIN_SRC_DIR %>app/app.module.ts"
     ],
     "angularCompilerOptions": {
         "genDir": "<%= BUILD_DIR %>aot",

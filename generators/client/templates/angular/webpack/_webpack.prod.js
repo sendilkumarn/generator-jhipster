@@ -20,7 +20,7 @@ const webpack = require('webpack');
 const webpackMerge = require('webpack-merge');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const Visualizer = require('webpack-visualizer-plugin');
-const ngcWebpack = require('ngc-webpack');
+const AotPlugin = require('@ngtools/webpack').AotPlugin;
 const path = require('path');
 
 const utils = require('./utils.js');
@@ -41,7 +41,7 @@ module.exports = webpackMerge(commonConfig({ env: ENV }), {
         <%_ } else { _%>
         global: './<%= MAIN_SRC_DIR %>content/css/global.css',
         <%_ } _%>
-        main: './<%= MAIN_SRC_DIR %>app/app.main-aot'
+        main: './<%= MAIN_SRC_DIR %>app/app.main'
     },
     output: {
         path: utils.root('<%= BUILD_DIR %>www'),
@@ -52,13 +52,7 @@ module.exports = webpackMerge(commonConfig({ env: ENV }), {
         rules: [{
             test: /\.ts$/,
             use: [
-                { loader: 'angular2-template-loader' },
-                {
-                    loader: 'awesome-typescript-loader',
-                    options: {
-                        configFileName: 'tsconfig-aot.json'
-                    },
-                }
+                { loader: '@ngtools/webpack'}
             ],
             exclude: ['node_modules/generator-jhipster']
         },
@@ -111,10 +105,10 @@ module.exports = webpackMerge(commonConfig({ env: ENV }), {
                 screw_i8: true
             }
         }),
-        new ngcWebpack.NgcWebpackPlugin({
-            disabled: false,
-            tsConfig: utils.root('tsconfig-aot.json'),
-            resourceOverride: ''
+        new AotPlugin({
+            mainPath: utils.root('src/main/webapp/app/app.main.ts'),
+            tsConfigPath: utils.root('tsconfig-aot.json'),
+            skipCodeGeneration: true
         }),
         new webpack.LoaderOptionsPlugin({
             minimize: true,
