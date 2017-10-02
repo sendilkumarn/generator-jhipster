@@ -22,10 +22,12 @@ import { JhiLanguageService } from 'ng-jhipster';
 <%_ } _%>
 
 import { Principal } from '../auth/principal.service';
+<%_ if (!skipServer) { _%>
 <%_ if (authenticationType === 'jwt' || authenticationType === 'uaa') { _%>
 import { AuthServerProvider } from '../auth/auth-jwt.service';
 <%_ } else if (authenticationType === 'session' || authenticationType === 'oauth2') { _%>
 import { AuthServerProvider } from '../auth/auth-session.service';
+<%_ } _%>
 <%_ } _%>
 <%_ if (websocket === 'spring-websocket') { _%>
 import { <%=jhiPrefixCapitalized%>TrackerService } from '../tracker/tracker.service';
@@ -60,6 +62,7 @@ export class LoginService {
         const cb = callback || function() {};
 
         return new Promise((resolve, reject) => {
+            <%_ if (!skipServer) { _%>
             this.authServerProvider.login(credentials).subscribe((data) => {
                 this.principal.identity(true).then((account) => {
                     <%_ if (enableTranslation) { _%>
@@ -80,18 +83,23 @@ export class LoginService {
                 reject(err);
                 return cb(err);
             });
+            <%_ } _%>
         });
     }
     <%_ } _%>
     <%_ if (authenticationType === 'jwt') { _%>
 
     loginWithToken(jwt, rememberMe) {
+        <%_ if (!skipServer) { _%>
         return this.authServerProvider.loginWithToken(jwt, rememberMe);
+        <%_ } _%>
     }
     <%_ } _%>
 
     logout() {
+        <%_ if (!skipServer) { _%>
         this.authServerProvider.logout().subscribe();
+        <%_ } _%>
         this.principal.authenticate(null);
     }
 }
