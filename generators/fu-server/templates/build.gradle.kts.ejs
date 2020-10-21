@@ -1,0 +1,57 @@
+<%#
+ Copyright 2013-2020 the original author or authors from the JHipster project.
+
+ This file is part of the JHipster project, see https://www.jhipster.tech/
+ for more information.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-%>
+
+plugins {
+	id("io.spring.dependency-management") version "<%= SPRING_BOOT_DM_VERSION %>"
+	id("org.springframework.boot") version "<%= SPRING_BOOT_VERSION %>"
+	id("java")
+}
+
+java {
+	sourceCompatibility = <%= JAVA_GRADLE_VERSION %>
+	targetCompatibility = <%= JAVA_GRADLE_VERSION %>
+}
+
+dependencies {
+	implementation("org.springframework.fu:spring-fu-jafu:<%= SPRING_BOOT_FU_VERSION %>")
+	implementation("org.springframework.boot:spring-boot-starter-webflux")
+  implementation("org.springframework.boot:spring-boot-starter-mustache")
+  <%_ if (databaseType === 'mongodb') { _%>
+  implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
+  implementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo")
+  <%_ } else if (databaseType === 'r2dbc') {  _%>
+  implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
+  implementation("io.r2dbc:r2dbc-h2")
+  <%_ } _%>
+
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
+}
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+	maven("https://repo.spring.io/milestone")
+	maven("https://repo.spring.io/snapshot")
+}
+
+tasks.withType<Test> {
+	useJUnitPlatform()
+}

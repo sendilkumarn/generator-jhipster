@@ -1,0 +1,97 @@
+<%#
+ Copyright 2013-2020 the original author or authors from the JHipster project.
+
+ This file is part of the JHipster project, see https://www.jhipster.tech/
+ for more information.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-%>
+package <%= packageName %>.repository;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.core.io.ClassPathResource;
+<%_ if (prodDatabaseType === 'mongodb') { _%>
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.ReactiveRemoveOperation;
+import org.springframework.data.mongodb.core.query.Query;
+<%_ } else if (prodDatabaseType === 'r2dbc') { _%>
+import org.springframework.data.r2dbc.core.R2dbcEntityOperations;
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.Query.empty;
+import static org.springframework.data.relational.core.query.Query.query;
+<%_ } _%>
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.io.IOException;
+import java.util.List;
+
+import <%= packageName %>.domain.User;
+
+public class UserRepository {
+
+
+
+    <% if (prodDatabaseType === 'mongodb') { %><% } else if (prodDatabaseType === 'r2dbc') { %><% } %>
+    private final <% if (prodDatabaseType === 'mongodb') { %>ReactiveMongoOperations<% } else if (prodDatabaseType === 'r2dbc') { %>R2dbcEntityOperations<% } %> operations;
+
+    <%_ if (prodDatabaseType === 'mongodb') { _%>
+    private final ObjectMapper objectMapper;
+    <%_ } _%>
+
+    public UserRepository(<% if (prodDatabaseType === 'mongodb') { %>ReactiveMongoOperations<% } else if (prodDatabaseType === 'r2dbc') { %>R2dbcEntityOperations<% } %> operations<% if (prodDatabaseType === 'mongodb') { %>, ObjectMapper objectMapper<% } %>) {
+        this.operations = operations;
+        <%_ if (prodDatabaseType === 'mongodb') { _%>
+        this.objectMapper = objectMapper;
+        <%_ } _%>
+    }
+
+    public Mono<Long> count() {
+        return operations.count(<% if (prodDatabaseType === 'mongodb') { %>new Query()<% } else if (prodDatabaseType === 'r2dbc') { %>empty()<% } %>, User.class);
+    }
+
+    public Flux<User> findAll() {
+        <%_ if (prodDatabaseType === 'mongodb') { _%>
+        return operations.findAll(User.class);
+        <%_ } else if (prodDatabaseType === 'r2dbc') { _%>
+        return operations.select(empty(), User.class);
+        <%_ } _%>
+    }
+
+    public Mono<User> findOne(String id) {
+        <%_ if (prodDatabaseType === 'mongodb') { _%>
+        return operations.findById(id, User.class);
+        <%_ } else if (prodDatabaseType === 'r2dbc') { _%>
+        return operations.select(User.class).matching(query(where("login").is(id))).one();
+        <%_ } _%>
+    }
+
+    <%_ if (prodDatabaseType === 'mongodb') { _%>
+    public ReactiveRemoveOperation.ReactiveRemove<User> deleteAll() {
+      return operations.remove(User.class);
+    }
+    <%_ } else  if (prodDatabaseType === 'r2dbc') { _%>
+    public Mono<Void> deleteAll() {
+      return operations.delete(User.class).all().then();
+    }
+    <%_ } _%>
+
+    public Mono<User> save(User user) {
+        <%_ if (prodDatabaseType === 'mongodb') { _%>
+        return operations.save(user);
+        <%_ } else if (prodDatabaseType === 'r2dbc') { _%>
+        return operations.insert(user);
+        <%_ } _%>
+    }
+}

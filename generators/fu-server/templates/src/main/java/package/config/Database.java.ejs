@@ -1,0 +1,62 @@
+<%#
+ Copyright 2013-2020 the original author or authors from the JHipster project.
+
+ This file is part of the JHipster project, see https://www.jhipster.tech/
+ for more information.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-%>
+package <%= packageName %>.config;
+
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.fu.jafu.ConfigurationDsl;
+<%_ if (prodDatabaseType === 'mongodb') { _%>
+import org.springframework.fu.jafu.mongo.ReactiveMongoDsl;
+<%_ } else if (prodDatabaseType === 'r2dbc') { _%>
+import io.r2dbc.spi.ConnectionFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.r2dbc.connection.init.ConnectionFactoryInitializer;
+import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
+
+import static org.springframework.fu.jafu.r2dbc.R2dbcDsl.r2dbc;
+<%_ } _%>
+
+import java.io.IOException;
+import java.util.function.Consumer;
+
+import static org.springframework.fu.jafu.webflux.WebFluxServerDsl.webFlux;
+
+import <%= packageName %>.repository.UserRepository;
+
+public abstract class Database {
+  public static Consumer<ConfigurationDsl> dataConfig = conf -> conf
+    <%_ if (prodDatabaseType === 'mongodb') { _%>
+    .beans(b -> b.bean(UserRepository.class))
+    .listener(ApplicationReadyEvent.class, e -> {
+        try {
+            conf.ref(UserRepository.class).init();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+    })
+    .enable(ReactiveMongoDsl.reactiveMongo(ReactiveMongoDsl::embedded));
+    <%_ } else if (prodDatabaseType === 'r2dbc') { _%>
+      .beans(b -> b.bean(UserRepository.class).bean(ConnectionFactoryInitializer.class, () -> {
+				ConnectionFactoryInitializer initializer = new ConnectionFactoryInitializer();
+				initializer.setConnectionFactory(b.ref(ConnectionFactory.class));
+				initializer.setDatabasePopulator(new ResourceDatabasePopulator(new ClassPathResource("db/tables.sql")));
+				return initializer;
+			}))
+    .enable(r2dbc(dsl -> dsl.url("r2dbc:h2:mem:///testdb;DB_CLOSE_DELAY=-1")));
+    <%_ } _%>
+}

@@ -1,0 +1,7 @@
+Description:
+    Creates a new JHipster Fu server side application based on the selected options
+
+Example:
+    jhipster fu-server
+
+    This will create a Spring Boot Fu server side app
