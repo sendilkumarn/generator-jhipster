@@ -59,6 +59,9 @@ This will compose jhipster:client, jhipster:server and jhipster:languages to sca
     gae: {
         desc: 'Deploy the current application to Google App Engine',
     },
+    fu: {
+        desc: 'Create a new JHipster fu application',
+    },
     heroku: {
         desc: 'Deploy the current application to Heroku',
     },
