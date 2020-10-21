@@ -1,0 +1,7 @@
+Description:
+    Creates a new JHipster functional application based on the selected options
+
+Example:
+    jhipster
+
+    This will compose jhipster:fu-server to scaffold a fu application
